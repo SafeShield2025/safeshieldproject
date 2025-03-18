@@ -8,7 +8,7 @@ void main() {
 }
 
 class SafeShieldApp extends StatelessWidget {
-  const SafeShieldApp({Key? key}) : super(key: key);
+  const SafeShieldApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +29,7 @@ class SafeShieldApp extends StatelessWidget {
 }
 
 class RegisterPage extends StatefulWidget {
-  const RegisterPage({Key? key}) : super(key: key);
+  const RegisterPage({super.key});
 
   @override
   _RegisterPageState createState() => _RegisterPageState();
@@ -165,10 +165,12 @@ class _RegisterPageState extends State<RegisterPage> {
                             LengthLimitingTextInputFormatter(10),
                           ],
                           validator: (value) {
-                            if (value == null || value.isEmpty)
+                            if (value == null || value.isEmpty) {
                               return 'Please enter your phone number';
-                            if (value.length < 10)
+                            }
+                            if (value.length < 10) {
                               return 'Please enter a valid phone number';
+                            }
                             return null;
                           },
                         ),
@@ -180,10 +182,12 @@ class _RegisterPageState extends State<RegisterPage> {
                           isPassword: true,
                           focusNode: _passwordFocusNode,
                           validator: (value) {
-                            if (value == null || value.isEmpty)
+                            if (value == null || value.isEmpty) {
                               return 'Please enter a password';
-                            if (value.length < 6)
+                            }
+                            if (value.length < 6) {
                               return 'Password must be at least 6 characters';
+                            }
                             return null;
                           },
                         ),
@@ -194,10 +198,12 @@ class _RegisterPageState extends State<RegisterPage> {
                           icon: Icons.lock_outline,
                           isPassword: true,
                           validator: (value) {
-                            if (value == null || value.isEmpty)
+                            if (value == null || value.isEmpty) {
                               return 'Please confirm your password';
-                            if (value != _passwordController.text)
+                            }
+                            if (value != _passwordController.text) {
                               return 'Passwords do not match';
+                            }
                             return null;
                           },
                         ),
