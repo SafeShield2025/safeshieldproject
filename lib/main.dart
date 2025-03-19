@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'login.dart';
+import 'email_verification.dart';
 
-
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(const SafeShieldApp());
 }
 
@@ -21,6 +25,7 @@ class SafeShieldApp extends StatelessWidget {
       routes: {
         '/login': (context) => const LoginPage(),
         '/register': (context) => const RegisterPage(),
+        '/verify-email': (context) => const EmailVerificationPage(),
       },
       home: const RegisterPage(),
       debugShowCheckedModeBanner: false,
@@ -37,7 +42,7 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   final _formKey = GlobalKey<FormState>();
-  final _phoneController = TextEditingController();
+  final _emailController = TextEditingController();
   final _nameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
@@ -48,7 +53,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   void dispose() {
-    _phoneController.dispose();
+    _emailController.dispose();
     _nameController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
@@ -56,22 +61,48 @@ class _RegisterPageState extends State<RegisterPage> {
     super.dispose();
   }
 
-  void _submitForm() {
+  void _submitForm() async {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
 
-      // Simulate API call
-      Future.delayed(const Duration(seconds: 2), () {
-        setState(() => _isLoading = false);
+      try {
+        final auth = FirebaseAuth.instance;
 
+        UserCredential userCredential = await auth
+            .createUserWithEmailAndPassword(
+              email: _emailController.text.trim(),
+              password: _passwordController.text.trim(),
+            );
+
+        User? user = userCredential.user;
+        if (user != null && !user.emailVerified) {
+          await user.sendEmailVerification();
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const EmailVerificationPage(),
+            ),
+          );
+        }
+      } on FirebaseAuthException catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Registration successful!'),
-            backgroundColor: Colors.green,
+          SnackBar(
+            content: Text(e.message ?? 'Registration failed'),
+            backgroundColor: Colors.red,
           ),
         );
-      });
+      } finally {
+        setState(() => _isLoading = false);
+      }
     }
+  }
+
+  // ✅ Correct Email Validation Logic
+  bool isValidEmail(String email) {
+    final RegExp emailRegex = RegExp(
+      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+    );
+    return emailRegex.hasMatch(email);
   }
 
   Widget _buildTextField({
@@ -156,20 +187,16 @@ class _RegisterPageState extends State<RegisterPage> {
                         ),
                         const SizedBox(height: 16),
                         _buildTextField(
-                          controller: _phoneController,
-                          label: 'Phone Number',
-                          icon: Icons.phone,
-                          keyboardType: TextInputType.phone,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                            LengthLimitingTextInputFormatter(10),
-                          ],
+                          controller: _emailController,
+                          label: 'Email',
+                          icon: Icons.email,
+                          keyboardType: TextInputType.emailAddress,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Please enter your phone number';
+                              return 'Please enter your email';
                             }
-                            if (value.length < 10) {
-                              return 'Please enter a valid phone number';
+                            if (!isValidEmail(value)) {
+                              return 'Please enter a valid email address';
                             }
                             return null;
                           },
