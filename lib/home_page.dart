@@ -1,3 +1,4 @@
+// Modified home_page.dart
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -13,6 +14,13 @@ class HomePage extends StatelessWidget {
         title: const Text('SafeShield'),
         centerTitle: true,
         actions: [
+          // Add profile icon
+          IconButton(
+            icon: const Icon(Icons.account_circle),
+            onPressed: () {
+              Navigator.pushNamed(context, '/profile');
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () {

@@ -5,6 +5,7 @@ import 'login.dart';
 import 'email_verification.dart';
 import 'home_page.dart';
 import 'register.dart';
+import 'profile_page.dart'; // Import the new file
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,6 +29,7 @@ class SafeShieldApp extends StatelessWidget {
         '/register': (context) => const RegisterPage(),
         '/verify-email': (context) => const EmailVerificationPage(),
         '/home': (context) => const HomePage(),
+        '/profile': (context) => const ProfilePage(), // Add the new route
       },
       home: const AuthenticationWrapper(),
       debugShowCheckedModeBanner: false,
@@ -56,5 +58,3 @@ class AuthenticationWrapper extends StatelessWidget {
     return const LoginPage();
   }
 }
-
-// Keep your existing RegisterPage class...
