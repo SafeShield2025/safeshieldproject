@@ -27,7 +27,7 @@ class SafeShieldApp extends StatelessWidget {
       routes: {
         '/login': (context) => const LoginPage(),
         '/register': (context) => const RegisterPage(),
-        '/verify-email': (context) => const EmailVerificationPage(),
+        '/verify-email': (context) => EmailVerificationPage(name: '',phone: '',),
         '/home': (context) => const HomePage(),
         '/profile': (context) => const ProfilePage(), // Add the new route
       },
@@ -50,7 +50,10 @@ class AuthenticationWrapper extends StatelessWidget {
       if (firebaseUser.emailVerified) {
         return const HomePage();
       } else {
-        return const EmailVerificationPage();
+        return EmailVerificationPage(
+          name: '', // Provide default values
+          phone: '',
+        );
       }
     }
 

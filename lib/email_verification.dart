@@ -1,9 +1,17 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class EmailVerificationPage extends StatefulWidget {
-  const EmailVerificationPage({super.key});
+  final String name;
+  final String phone;
+
+  const EmailVerificationPage({
+    super.key,
+    required this.name,
+    required this.phone
+  });
 
   @override
   _EmailVerificationPageState createState() => _EmailVerificationPageState();
@@ -106,6 +114,7 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
               const SizedBox(height: 24),
               const Text(
                 'Email Verified!',
+
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
@@ -116,6 +125,12 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: () {
+                  FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+                    'name': widget.name ?? '',
+                    'phone': widget.phone ?? '',
+                    'email': user.email,
+                    'createdAt': FieldValue.serverTimestamp(),
+                  });
                   Navigator.pushReplacementNamed(context, '/home');
                 },
                 style: ElevatedButton.styleFrom(

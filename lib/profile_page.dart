@@ -49,6 +49,28 @@ class _ProfilePageState extends State<ProfilePage> {
             _nameController.text = userData['name'] ?? '';
             _phoneController.text = userData['phone'] ?? '';
           });
+        } else {
+          // Handle case when document doesn't exist
+          // Initialize with empty values
+          setState(() {
+            _nameController.text = '';
+            _phoneController.text = '';
+          });
+
+          // Create a new document for the user
+          await _firestore.collection('users').doc(currentUser!.uid).set({
+            'name': '',
+            'phone': '',
+            'email': currentUser!.email,
+            'createdAt': FieldValue.serverTimestamp(),
+          });
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Profile created. Please update your information.'),
+              backgroundColor: Colors.blue,
+            ),
+          );
         }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -223,118 +245,139 @@ class _ProfilePageState extends State<ProfilePage> {
     final TextEditingController newPasswordController = TextEditingController();
     final TextEditingController confirmPasswordController = TextEditingController();
     final formKey = GlobalKey<FormState>();
+    bool isLoading = false;
 
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Change Password'),
-          content: Form(
-            key: formKey,
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextFormField(
-                    controller: currentPasswordController,
-                    decoration: const InputDecoration(
-                      labelText: 'Current Password',
-                      border: OutlineInputBorder(),
-                    ),
-                    obscureText: true,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your current password';
-                      }
-                      return null;
-                    },
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('Change Password'),
+              content: isLoading
+                  ? const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(20.0),
+                  child: CircularProgressIndicator(),
+                ),
+              )
+                  : Form(
+                key: formKey,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextFormField(
+                        controller: currentPasswordController,
+                        decoration: const InputDecoration(
+                          labelText: 'Current Password',
+                          border: OutlineInputBorder(),
+                        ),
+                        obscureText: true,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your current password';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: newPasswordController,
+                        decoration: const InputDecoration(
+                          labelText: 'New Password',
+                          border: OutlineInputBorder(),
+                        ),
+                        obscureText: true,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a new password';
+                          }
+                          if (value.length < 6) {
+                            return 'Password must be at least 6 characters';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: confirmPasswordController,
+                        decoration: const InputDecoration(
+                          labelText: 'Confirm New Password',
+                          border: OutlineInputBorder(),
+                        ),
+                        obscureText: true,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please confirm your new password';
+                          }
+                          if (value != newPasswordController.text) {
+                            return 'Passwords do not match';
+                          }
+                          return null;
+                        },
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: newPasswordController,
-                    decoration: const InputDecoration(
-                      labelText: 'New Password',
-                      border: OutlineInputBorder(),
-                    ),
-                    obscureText: true,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter a new password';
-                      }
-                      if (value.length < 6) {
-                        return 'Password must be at least 6 characters';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: confirmPasswordController,
-                    decoration: const InputDecoration(
-                      labelText: 'Confirm New Password',
-                      border: OutlineInputBorder(),
-                    ),
-                    obscureText: true,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please confirm your new password';
-                      }
-                      if (value != newPasswordController.text) {
-                        return 'Passwords do not match';
-                      }
-                      return null;
-                    },
-                  ),
-                ],
+                ),
               ),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('CANCEL'),
-            ),
-            TextButton(
-              onPressed: () async {
-                if (formKey.currentState!.validate()) {
-                  try {
-                    // Get credentials for reauthentication
-                    AuthCredential credential = EmailAuthProvider.credential(
-                      email: currentUser!.email!,
-                      password: currentPasswordController.text,
-                    );
-
-                    // Reauthenticate
-                    await currentUser!.reauthenticateWithCredential(credential);
-
-                    // Change password
-                    await currentUser!.updatePassword(newPasswordController.text);
-
+              actions: [
+                TextButton(
+                  onPressed: isLoading ? null : () {
                     Navigator.of(context).pop();
+                  },
+                  child: const Text('CANCEL'),
+                ),
+                TextButton(
+                  onPressed: isLoading ? null : () async {
+                    if (formKey.currentState!.validate()) {
+                      setState(() {
+                        isLoading = true;
+                      });
+                      try {
+                        // Check if the user is still logged in
+                        if (currentUser == null) {
+                          throw Exception("User is not logged in");
+                        }
 
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Password changed successfully'),
-                        backgroundColor: Colors.green,
-                      ),
-                    );
-                  } catch (e) {
-                    Navigator.of(context).pop();
+                        // Get credentials for reauthentication
+                        AuthCredential credential = EmailAuthProvider.credential(
+                          email: currentUser!.email!,
+                          password: currentPasswordController.text,
+                        );
 
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Error: ${e.toString()}'),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
-                  }
-                }
-              },
-              child: const Text('CHANGE'),
-            ),
-          ],
+                        // Reauthenticate
+                        await currentUser!.reauthenticateWithCredential(credential);
+
+                        // Change password
+                        await currentUser!.updatePassword(newPasswordController.text);
+
+                        Navigator.of(context).pop();
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Password changed successfully'),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      } catch (e) {
+                        Navigator.of(context).pop();
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Error: ${e.toString()}'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                    }
+                  },
+                  child: const Text('CHANGE'),
+                ),
+              ],
+            );
+          },
         );
       },
     );
@@ -342,80 +385,101 @@ class _ProfilePageState extends State<ProfilePage> {
 
   void _showDeleteAccountDialog() {
     final TextEditingController passwordController = TextEditingController();
+    bool isLoading = false;
 
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Delete Account'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                'This action cannot be undone. All your data will be permanently deleted.',
-                style: TextStyle(color: Colors.red),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: passwordController,
-                decoration: const InputDecoration(
-                  labelText: 'Enter your password to confirm',
-                  border: OutlineInputBorder(),
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('Delete Account'),
+              content: isLoading
+                  ? const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(20.0),
+                  child: CircularProgressIndicator(),
                 ),
-                obscureText: true,
+              )
+                  : Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'This action cannot be undone. All your data will be permanently deleted.',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: passwordController,
+                    decoration: const InputDecoration(
+                      labelText: 'Enter your password to confirm',
+                      border: OutlineInputBorder(),
+                    ),
+                    obscureText: true,
+                  ),
+                ],
               ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('CANCEL'),
-            ),
-            TextButton(
-              onPressed: () async {
-                if (passwordController.text.isNotEmpty) {
-                  try {
-                    // Get credentials for reauthentication
-                    AuthCredential credential = EmailAuthProvider.credential(
-                      email: currentUser!.email!,
-                      password: passwordController.text,
-                    );
-
-                    // Reauthenticate
-                    await currentUser!.reauthenticateWithCredential(credential);
-
-                    // Delete user data from Firestore
-                    await _firestore.collection('users').doc(currentUser!.uid).delete();
-
-                    // Delete user account
-                    await currentUser!.delete();
-
+              actions: [
+                TextButton(
+                  onPressed: isLoading ? null : () {
                     Navigator.of(context).pop();
-                    Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+                  },
+                  child: const Text('CANCEL'),
+                ),
+                TextButton(
+                  onPressed: isLoading ? null : () async {
+                    if (passwordController.text.isNotEmpty) {
+                      setState(() {
+                        isLoading = true;
+                      });
+                      try {
+                        // Check if the user is still logged in
+                        if (currentUser == null) {
+                          throw Exception("User is not logged in");
+                        }
 
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Account deleted successfully'),
-                        backgroundColor: Colors.green,
-                      ),
-                    );
-                  } catch (e) {
-                    Navigator.of(context).pop();
+                        // Get credentials for reauthentication
+                        AuthCredential credential = EmailAuthProvider.credential(
+                          email: currentUser!.email!,
+                          password: passwordController.text,
+                        );
 
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Error: ${e.toString()}'),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
-                  }
-                }
-              },
-              child: const Text('DELETE', style: TextStyle(color: Colors.red)),
-            ),
-          ],
+                        // Reauthenticate
+                        await currentUser!.reauthenticateWithCredential(credential);
+
+                        // Delete user data from Firestore
+                        await _firestore.collection('users').doc(currentUser!.uid).delete();
+
+                        // Delete user account
+                        await currentUser!.delete();
+
+                        Navigator.of(context).pop();
+                        Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Account deleted successfully'),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      } catch (e) {
+                        Navigator.of(context).pop();
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Error: ${e.toString()}'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                    }
+                  },
+                  child: const Text('DELETE', style: TextStyle(color: Colors.red)),
+                ),
+              ],
+            );
+          },
         );
       },
     );

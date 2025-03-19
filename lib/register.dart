@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'email_verification.dart';
+
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -13,6 +15,8 @@ class _RegisterPageState extends State<RegisterPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  final _nameController = TextEditingController();
+  final _phoneController = TextEditingController();
   bool _isLoading = false;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
@@ -22,6 +26,8 @@ class _RegisterPageState extends State<RegisterPage> {
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
+    _nameController.dispose();
+    _phoneController.dispose();
     super.dispose();
   }
 
@@ -40,11 +46,21 @@ class _RegisterPageState extends State<RegisterPage> {
         User? user = userCredential.user;
         if (user != null) {
           // Send email verification
+
           await user.sendEmailVerification();
 
           // Navigate to verification page
           if (mounted) {
-            Navigator.pushReplacementNamed(context, '/verify-email');
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    EmailVerificationPage(
+                      name: _nameController.text.trim(),
+                      phone: _phoneController.text.trim(),
+                    ),
+              ),
+            );
           }
         }
       } on FirebaseAuthException catch (e) {
@@ -93,7 +109,8 @@ class _RegisterPageState extends State<RegisterPage> {
         suffixIcon: isPassword
             ? IconButton(
           icon: Icon(
-            isPassword == _obscurePassword ? Icons.visibility : Icons.visibility_off,
+            (label == 'Password' ? _obscurePassword : _obscureConfirmPassword)
+                ? Icons.visibility_off : Icons.visibility,
           ),
           onPressed: () {
             setState(() {
@@ -160,6 +177,25 @@ class _RegisterPageState extends State<RegisterPage> {
                     }
                     return null;
                   },
+                ),
+                const SizedBox(height: 16),
+                _buildTextField(
+                  controller: _nameController,
+                  label: 'Full Name',
+                  icon: Icons.person,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your full name';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                _buildTextField(
+                  controller: _phoneController,
+                  label: 'Phone Number',
+                  icon: Icons.phone,
+                  keyboardType: TextInputType.phone,
                 ),
                 const SizedBox(height: 16),
                 _buildTextField(
