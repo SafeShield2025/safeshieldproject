@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'login.dart';
 import 'email_verification.dart';
 import 'home_page.dart';
+import 'map_page.dart';
 import 'register.dart';
 import 'profile_page.dart'; // Import the new file
 
@@ -29,7 +30,8 @@ class SafeShieldApp extends StatelessWidget {
         '/register': (context) => const RegisterPage(),
         '/verify-email': (context) => EmailVerificationPage(name: '',phone: '',),
         '/home': (context) => const HomePage(),
-        '/profile': (context) => const ProfilePage(), // Add the new route
+        '/profile': (context) => const ProfilePage(),
+        '/map':(context)=> const Mapp() // Add the new route
       },
       home: const AuthenticationWrapper(),
       debugShowCheckedModeBanner: false,
