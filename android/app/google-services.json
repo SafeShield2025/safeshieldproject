@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "612359983694",
+    "project_id": "safeshield-cc551",
+    "storage_bucket": "safeshield-cc551.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:612359983694:android:9bc2a3db0f4b890557691f",
+        "android_client_info": {
+          "package_name": "com.example.safeshieldproject"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDG9H41ZRdZeiq9w8ZLVvwdaTm-_rKP-vo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

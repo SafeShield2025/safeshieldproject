@@ -1,4 +1,3 @@
-// profile_page.dart
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -16,6 +15,7 @@ class _ProfilePageState extends State<ProfilePage> {
   final _phoneController = TextEditingController();
   bool _isLoading = false;
   bool _isEditing = false;
+  List<Map<String, dynamic>> _emergencyContacts = [];
 
   User? currentUser = FirebaseAuth.instance.currentUser;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -24,6 +24,7 @@ class _ProfilePageState extends State<ProfilePage> {
   void initState() {
     super.initState();
     _loadUserProfile();
+    _loadEmergencyContacts();
   }
 
   @override
@@ -85,6 +86,39 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
+  Future<void> _loadEmergencyContacts() async {
+    if (currentUser != null) {
+      try {
+        QuerySnapshot contactsSnapshot = await _firestore
+            .collection('users')
+            .doc(currentUser!.uid)
+            .collection('emergencyContacts')
+            .get();
+
+        setState(() {
+          _emergencyContacts = contactsSnapshot.docs
+              .map((doc) {
+            final data = doc.data() as Map<String, dynamic>;
+            return {
+              'id': doc.id,
+              'name': data['name'] ?? '',
+              'phone': data['phone'] ?? '',
+              'relationship': data['relationship'] ?? '',
+            };
+          })
+              .toList();
+        });
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error loading contacts: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   Future<void> _saveProfile() async {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
@@ -116,6 +150,273 @@ class _ProfilePageState extends State<ProfilePage> {
         setState(() => _isLoading = false);
       }
     }
+  }
+
+  Future<void> _addEmergencyContact() async {
+    final TextEditingController nameController = TextEditingController();
+    final TextEditingController phoneController = TextEditingController();
+    final TextEditingController relationshipController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Add Emergency Contact'),
+        content: Form(
+          key: formKey,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: nameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Full Name',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.person),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a name';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: phoneController,
+                  decoration: const InputDecoration(
+                    labelText: 'Phone Number',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.phone),
+                  ),
+                  keyboardType: TextInputType.phone,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a phone number';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: relationshipController,
+                  decoration: const InputDecoration(
+                    labelText: 'Relationship',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.people),
+                    hintText: 'e.g. Family, Friend, Roommate',
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text('CANCEL'),
+          ),
+          TextButton(
+            onPressed: () async {
+              if (formKey.currentState!.validate()) {
+                try {
+                  await _firestore
+                      .collection('users')
+                      .doc(currentUser!.uid)
+                      .collection('emergencyContacts')
+                      .add({
+                    'name': nameController.text.trim(),
+                    'phone': phoneController.text.trim(),
+                    'relationship': relationshipController.text.trim(),
+                    'createdAt': FieldValue.serverTimestamp(),
+                  });
+
+                  Navigator.of(context).pop();
+                  _loadEmergencyContacts(); // Refresh the list
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Emergency contact added successfully'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                } catch (e) {
+                  Navigator.of(context).pop();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Error adding contact: ${e.toString()}'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              }
+            },
+            child: const Text('SAVE'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _editEmergencyContact(Map<String, dynamic> contact) async {
+    final TextEditingController nameController = TextEditingController(text: contact['name']);
+    final TextEditingController phoneController = TextEditingController(text: contact['phone']);
+    final TextEditingController relationshipController = TextEditingController(text: contact['relationship']);
+    final formKey = GlobalKey<FormState>();
+
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Edit Emergency Contact'),
+        content: Form(
+          key: formKey,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: nameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Full Name',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.person),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a name';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: phoneController,
+                  decoration: const InputDecoration(
+                    labelText: 'Phone Number',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.phone),
+                  ),
+                  keyboardType: TextInputType.phone,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a phone number';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: relationshipController,
+                  decoration: const InputDecoration(
+                    labelText: 'Relationship',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.people),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text('CANCEL'),
+          ),
+          TextButton(
+            onPressed: () async {
+              if (formKey.currentState!.validate()) {
+                try {
+                  await _firestore
+                      .collection('users')
+                      .doc(currentUser!.uid)
+                      .collection('emergencyContacts')
+                      .doc(contact['id'])
+                      .update({
+                    'name': nameController.text.trim(),
+                    'phone': phoneController.text.trim(),
+                    'relationship': relationshipController.text.trim(),
+                    'updatedAt': FieldValue.serverTimestamp(),
+                  });
+
+                  Navigator.of(context).pop();
+                  _loadEmergencyContacts(); // Refresh the list
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Emergency contact updated successfully'),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                } catch (e) {
+                  Navigator.of(context).pop();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Error updating contact: ${e.toString()}'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              }
+            },
+            child: const Text('UPDATE'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _deleteEmergencyContact(String contactId) async {
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Contact'),
+        content: const Text('Are you sure you want to delete this emergency contact?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text('CANCEL'),
+          ),
+          TextButton(
+            onPressed: () async {
+              try {
+                await _firestore
+                    .collection('users')
+                    .doc(currentUser!.uid)
+                    .collection('emergencyContacts')
+                    .doc(contactId)
+                    .delete();
+
+                Navigator.of(context).pop();
+                _loadEmergencyContacts(); // Refresh the list
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Emergency contact deleted'),
+                    backgroundColor: Colors.blue,
+                  ),
+                );
+              } catch (e) {
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Error deleting contact: ${e.toString()}'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            },
+            child: const Text('DELETE', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -217,13 +518,101 @@ class _ProfilePageState extends State<ProfilePage> {
                   ],
                 ),
               const SizedBox(height: 20),
+              // Emergency Contacts Section
               const Divider(),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Emergency Contacts',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.add_circle),
+                    color: Theme.of(context).primaryColor,
+                    onPressed: _addEmergencyContact,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+
+              // Display Emergency Contacts
+              if (_emergencyContacts.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16.0),
+                  child: Text(
+                    'No emergency contacts added yet.\nAdd contacts who should be notified in case of emergency.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                )
+              else
+                ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: _emergencyContacts.length,
+                  itemBuilder: (context, index) {
+                    final contact = _emergencyContacts[index];
+                    return Card(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      child: ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: Theme.of(context).colorScheme.secondary.withOpacity(0.2),
+                          child: const Icon(Icons.person),
+                        ),
+                        title: Text(contact['name']),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(contact['phone']),
+                            if (contact['relationship'].isNotEmpty)
+                              Text(contact['relationship'],
+                                style: const TextStyle(fontStyle: FontStyle.italic),
+                              ),
+                          ],
+                        ),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.edit),
+                              onPressed: () => _editEmergencyContact(contact),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete),
+                              color: Colors.red,
+                              onPressed: () => _deleteEmergencyContact(contact['id']),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+
               const SizedBox(height: 20),
+              const Divider(),
+              const SizedBox(height: 10),
+              // Settings and actions section
+              const Text(
+                'Account Settings',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 10),
               ListTile(
                 leading: const Icon(Icons.lock_outline),
                 title: const Text('Change Password'),
                 onTap: () {
                   _showChangePasswordDialog();
+                },
+              ),
+              // Logout button
+              ListTile(
+                leading: const Icon(Icons.logout),
+                title: const Text('Logout'),
+                onTap: () {
+                  _showLogoutDialog();
                 },
               ),
               ListTile(
@@ -236,6 +625,33 @@ class _ProfilePageState extends State<ProfilePage> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  // Logout dialog method
+  void _showLogoutDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Logout'),
+        content: const Text('Are you sure you want to logout?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text('CANCEL'),
+          ),
+          TextButton(
+            onPressed: () async {
+              await FirebaseAuth.instance.signOut();
+              Navigator.of(context).pop();
+              Navigator.pushReplacementNamed(context, '/login');
+            },
+            child: const Text('LOGOUT'),
+          ),
+        ],
       ),
     );
   }
