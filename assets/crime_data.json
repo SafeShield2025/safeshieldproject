@@ -1,0 +1,404 @@
+{
+  "crime_zones": [
+    {
+      "id": "zone1",
+      "latitude": 37.7749,
+      "longitude": -122.4294,
+      "radius": 1000.0,
+      "crime_rate": 8.5,
+      "crime_types": ["robbery", "assault", "theft"]
+    },
+    {
+      "id": "zone2",
+      "latitude": 37.7833,
+      "longitude": -122.4267,
+      "radius": 800.0,
+      "crime_rate": 9.2,
+      "crime_types": ["robbery", "assault", "burglary"]
+    },
+    {
+      "id": "zone3",
+      "latitude": 37.7591,
+      "longitude": -122.4149,
+      "radius": 1200.0,
+      "crime_rate": 7.3,
+      "crime_types": ["theft", "vandalism"]
+    },
+    {
+      "id": "zone4",
+      "latitude": 37.7594,
+      "longitude": -122.4362,
+      "radius": 600.0,
+      "crime_rate": 6.1,
+      "crime_types": ["theft"]
+    },
+    {
+      "id": "zone5",
+      "latitude": 37.7850,
+      "longitude": -122.4100,
+      "radius": 900.0,
+      "crime_rate": 8.9,
+      "crime_types": ["assault", "robbery"]
+    },
+    {
+      "id": "zone6",
+      "latitude": 37.7650,
+      "longitude": -122.4450,
+      "radius": 750.0,
+      "crime_rate": 5.5,
+      "crime_types": ["theft", "vandalism"]
+    },
+    {
+      "id": "zone7",
+      "latitude": 37.7700,
+      "longitude": -122.4300,
+      "radius": 850.0,
+      "crime_rate": 4.2,
+      "crime_types": ["theft"]
+    },
+    {
+      "id": "zone8",
+      "latitude": 13.067439,
+      "longitude": 80.237617,
+      "radius": 1200.0,
+      "crime_rate": 7.8,
+      "crime_types": ["robbery", "assault", "theft"]
+    },
+    {
+      "id": "zone9",
+      "latitude": 10.99996035,
+      "longitude": 76.95002112,
+      "radius": 900.0,
+      "crime_rate": 6.5,
+      "crime_types": ["burglary", "vandalism"]
+    },
+    {
+      "id": "zone10",
+      "latitude": 9.920026264,
+      "longitude": 78.12002722,
+      "radius": 1100.0,
+      "crime_rate": 8.2,
+      "crime_types": ["theft", "fraud"]
+    },
+    {
+      "id": "zone11",
+      "latitude": 10.37997235,
+      "longitude": 78.00003454,
+      "radius": 1000.0,
+      "crime_rate": 6.4,
+      "crime_types": ["theft", "vandalism"]
+    },
+    {
+      "id": "zone12",
+      "latitude": 12.83372438,
+      "longitude": 79.71667395,
+      "radius": 900.0,
+      "crime_rate": 5.2,
+      "crime_types": ["burglary"]
+    },
+    {
+      "id": "zone13",
+      "latitude": 10.98047833,
+      "longitude": 79.40000077,
+      "radius": 1100.0,
+      "crime_rate": 7.1,
+      "crime_types": ["robbery", "assault"]
+    },
+    {
+      "id": "zone14",
+      "latitude": 11.72040733,
+      "longitude": 79.77000403,
+      "radius": 1200.0,
+      "crime_rate": 8.3,
+      "crime_types": ["fraud", "theft"]
+    },
+    {
+      "id": "zone15",
+      "latitude": 10.95037681,
+      "longitude": 78.08333695,
+      "radius": 950.0,
+      "crime_rate": 6.7,
+      "crime_types": ["theft"]
+    },
+    {
+      "id": "zone16",
+      "latitude": 10.766667,
+      "longitude": 79.833333,
+      "radius": 850.0,
+      "crime_rate": 5.9,
+      "crime_types": ["assault", "vandalism"]
+    },
+    {
+      "id": "zone17",
+      "latitude": 12.740000,
+      "longitude": 77.830000,
+      "radius": 1050.0,
+      "crime_rate": 7.6,
+      "crime_types": ["theft", "robbery"]
+    },
+    {
+      "id": "zone18",
+      "latitude": 8.81999005,
+      "longitude": 78.13000077,
+      "radius": 1300.0,
+      "crime_rate": 9.0,
+      "crime_types": ["robbery", "burglary"]
+    },
+    {
+      "id": "zone19",
+      "latitude": 12.130000,
+      "longitude": 78.160000,
+      "radius": 1100.0,
+      "crime_rate": 6.2,
+      "crime_types": ["vandalism", "theft"]
+    },
+    {
+      "id": "zone20",
+      "latitude": 11.780000,
+      "longitude": 79.380000,
+      "radius": 950.0,
+      "crime_rate": 7.5,
+      "crime_types": ["theft", "fraud"]
+    },
+    {
+      "id": "zone21",
+      "latitude": 9.280000,
+      "longitude": 78.830000,
+      "radius": 800.0,
+      "crime_rate": 5.8,
+      "crime_types": ["burglary"]
+    },
+    {
+      "id": "zone22",
+      "latitude": 12.920000,
+      "longitude": 78.890000,
+      "radius": 1200.0,
+      "crime_rate": 8.1,
+      "crime_types": ["theft", "vandalism"]
+    },
+    {
+      "id": "zone23",
+      "latitude": 11.350000,
+      "longitude": 78.990000,
+      "radius": 750.0,
+      "crime_rate": 4.9,
+      "crime_types": ["assault"]
+    },
+    {
+      "id": "zone24",
+      "latitude": 9.660000,
+      "longitude": 77.880000,
+      "radius": 1050.0,
+      "crime_rate": 7.3,
+      "crime_types": ["robbery", "burglary"]
+    },
+    {
+      "id": "zone25",
+      "latitude": 11.920000,
+      "longitude": 79.830000,
+      "radius": 1250.0,
+      "crime_rate": 9.4,
+      "crime_types": ["fraud", "theft"]
+    },
+    {
+      "id": "zone26",
+      "latitude": 12.120000,
+      "longitude": 78.220000,
+      "radius": 850.0,
+      "crime_rate": 5.7,
+      "crime_types": ["theft"]
+    },
+    {
+      "id": "zone27",
+      "latitude": 11.590000,
+      "longitude": 78.420000,
+      "radius": 900.0,
+      "crime_rate": 6.8,
+      "crime_types": ["assault", "robbery"]
+    },
+    {
+      "id": "zone28",
+      "latitude": 9.170000,
+      "longitude": 77.880000,
+      "radius": 1100.0,
+      "crime_rate": 7.9,
+      "crime_types": ["burglary", "vandalism"]
+    },
+    {
+      "id": "zone29",
+      "latitude": 10.510000,
+      "longitude": 77.980000,
+      "radius": 950.0,
+      "crime_rate": 6.1,
+      "crime_types": ["theft", "fraud"]
+    },
+    {
+      "id": "zone30",
+      "latitude": 11.450000,
+      "longitude": 79.650000,
+      "radius": 1000.0,
+      "crime_rate": 7.2,
+      "crime_types": ["robbery"]
+    },
+    {
+      "id": "zone31",
+      "latitude": 9.810000,
+      "longitude": 78.220000,
+      "radius": 850.0,
+      "crime_rate": 5.4,
+      "crime_types": ["theft"]
+    },
+    {
+      "id": "zone32",
+      "latitude": 11.220000,
+      "longitude": 78.450000,
+      "radius": 1300.0,
+      "crime_rate": 8.5,
+      "crime_types": ["robbery", "assault"]
+    },
+    {
+      "id": "zone33",
+      "latitude": 10.820000,
+      "longitude": 79.310000,
+      "radius": 900.0,
+      "crime_rate": 6.9,
+      "crime_types": ["theft", "burglary"]
+    },
+    {
+      "id": "zone34",
+      "latitude": 12.520000,
+      "longitude": 78.220000,
+      "radius": 1050.0,
+      "crime_rate": 7.8,
+      "crime_types": ["fraud", "theft"]
+    },
+    {
+      "id": "zone35",
+      "latitude": 9.410000,
+      "longitude": 78.530000,
+      "radius": 1200.0,
+      "crime_rate": 8.9,
+      "crime_types": ["robbery", "burglary"]
+    },
+    {
+      "id": "zone36",
+      "latitude": 10.670000,
+      "longitude": 77.920000,
+      "radius": 950.0,
+      "crime_rate": 6.2,
+      "crime_types": ["assault", "vandalism"]
+    },
+    {
+      "id": "zone37",
+      "latitude": 11.930000,
+      "longitude": 79.120000,
+      "radius": 800.0,
+      "crime_rate": 5.9,
+      "crime_types": ["theft"]
+    },
+    {
+      "id": "zone38",
+      "latitude": 10.350000,
+      "longitude": 79.720000,
+      "radius": 1100.0,
+      "crime_rate": 7.5,
+      "crime_types": ["robbery", "fraud"]
+    },
+    {
+      "id": "zone39",
+      "latitude": 12.110000,
+      "longitude": 78.310000,
+      "radius": 850.0,
+      "crime_rate": 6.3,
+      "crime_types": ["burglary"]
+    },
+    {
+      "id": "zone40",
+      "latitude": 9.880000,
+      "longitude": 77.650000,
+      "radius": 1000.0,
+      "crime_rate": 7.0,
+      "crime_types": ["theft", "vandalism"]
+    },
+    {
+      "id": "zone41",
+      "latitude": 10.250000,
+      "longitude": 78.450000,
+      "radius": 1200.0,
+      "crime_rate": 8.2,
+      "crime_types": ["assault", "robbery"]
+    },
+    {
+      "id": "zone42",
+      "latitude": 11.780000,
+      "longitude": 77.880000,
+      "radius": 900.0,
+      "crime_rate": 6.4,
+      "crime_types": ["theft", "fraud"]
+    },
+    {
+      "id": "zone43",
+      "latitude": 9.520000,
+      "longitude": 78.330000,
+      "radius": 950.0,
+      "crime_rate": 7.1,
+      "crime_types": ["robbery"]
+    },
+    {
+      "id": "zone44",
+      "latitude": 10.920000,
+      "longitude": 79.330000,
+      "radius": 850.0,
+      "crime_rate": 5.5,
+      "crime_types": ["theft"]
+    },
+    {
+      "id": "zone45",
+      "latitude": 11.620000,
+      "longitude": 78.730000,
+      "radius": 1100.0,
+      "crime_rate": 7.7,
+      "crime_types": ["burglary", "vandalism"]
+    },
+    {
+      "id": "zone46",
+      "latitude": 10.530000,
+      "longitude": 79.120000,
+      "radius": 1000.0,
+      "crime_rate": 6.9,
+      "crime_types": ["assault", "theft"]
+    },
+    {
+      "id": "zone47",
+      "latitude": 12.340000,
+      "longitude": 79.420000,
+      "radius": 1300.0,
+      "crime_rate": 9.3,
+      "crime_types": ["fraud", "robbery"]
+    },
+    {
+      "id": "zone48",
+      "latitude": 9.870000,
+      "longitude": 78.530000,
+      "radius": 750.0,
+      "crime_rate": 5.8,
+      "crime_types": ["vandalism"]
+    },
+    {
+      "id": "zone49",
+      "latitude": 10.430000,
+      "longitude": 78.120000,
+      "radius": 900.0,
+      "crime_rate": 6.6,
+      "crime_types": ["robbery", "assault"]
+    },
+    {
+      "id": "zone50",
+      "latitude": 11.150000,
+      "longitude": 78.930000,
+      "radius": 850.0,
+      "crime_rate": 6.0,
+      "crime_types": ["theft", "fraud"]
+    }
+  ]
+}

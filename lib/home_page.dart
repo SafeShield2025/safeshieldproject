@@ -14,6 +14,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  int _currentIndex = 0;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final User? _currentUser = FirebaseAuth.instance.currentUser;
   Position? _currentPosition;
@@ -552,7 +553,8 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 0,
+        currentIndex: _currentIndex,
+        type: BottomNavigationBarType.fixed, // Important for more than 3 items
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
@@ -572,6 +574,10 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
         onTap: (index) {
+          setState(() {
+            _currentIndex = index; // Update the current index
+          });
+
           // Handle navigation
           switch (index) {
             case 0:
@@ -780,3 +786,5 @@ class _HomePageState extends State<HomePage> {
   }
 
 }
+
+
