@@ -444,7 +444,7 @@ class _ProfilePageState extends State<ProfilePage> {
         actions: [
           if (!_isEditing)
             IconButton(
-              icon: const Icon(Icons.edit),
+              icon: const Icon(Icons.edit,color: Colors.black),
               onPressed: () {
                 setState(() {
                   _isEditing = true;

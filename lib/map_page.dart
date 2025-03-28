@@ -530,33 +530,38 @@ class _SafeShieldHomePageState extends State<MapPage> {
           ),
         ),
         if (predictions.isNotEmpty)
-          Container(
-            margin: EdgeInsets.only(top: 8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 10,
-                  spreadRadius: 2,
-                ),
-              ],
+          ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: 200, // Limit the height of the predictions list
             ),
-            child: ListView.separated(
-              shrinkWrap: true,
-              itemCount: predictions.length,
-              separatorBuilder: (context, index) => Divider(height: 1),
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(
-                    predictions[index].description ?? "",
-                    style: TextStyle(color: Colors.deepPurple),
+            child: Container(
+              margin: EdgeInsets.only(top: 8),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 10,
+                    spreadRadius: 2,
                   ),
-                  leading: Icon(Icons.place, color: Colors.deepPurple),
-                  onTap: () => _onSelectPlace(predictions[index], isStart),
-                );
-              },
+                ],
+              ),
+              child: ListView.separated(
+                shrinkWrap: true,
+                itemCount: predictions.length,
+                separatorBuilder: (context, index) => Divider(height: 1),
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: Text(
+                      predictions[index].description ?? "",
+                      style: TextStyle(color: Colors.deepPurple),
+                    ),
+                    leading: Icon(Icons.place, color: Colors.deepPurple),
+                    onTap: () => _onSelectPlace(predictions[index], isStart),
+                  );
+                },
+              ),
             ),
           ),
       ],

@@ -8,6 +8,10 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:geolocator/geolocator.dart';
 import 'profile_page.dart';
 import 'map_page.dart';
+import 'package:flutter/material.dart';
+//import 'package:flutter_sms/flutter_sms.dart';
+import 'package:permission_handler/permission_handler.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -193,95 +197,156 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void _sendEmergencyAlert(BuildContext context) async {
-    // Show a loading indicator
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return const AlertDialog(
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CircularProgressIndicator(),
-              SizedBox(height: 16),
-              Text('Sending emergency alert...'),
-            ],
-          ),
-        );
-      },
+//   Future<void> _sendEmergencyAlert(BuildContext context) async {
+//     // Check SMS permission first
+//     PermissionStatus smsPermission = await Permission.sms.status;
+//
+//     if (!smsPermission.isGranted) {
+//       // Request SMS permission
+//       smsPermission = await Permission.sms.request();
+//
+//       if (!smsPermission.isGranted) {
+//         // Show dialog if permission is denied
+//         _showSMSPermissionDeniedDialog(context);
+//         return;
+//       }
+//     }
+//
+//     // Show a loading indicator
+//     showDialog(
+//       context: context,
+//       barrierDismissible: false,
+//       builder: (BuildContext context) {
+//         return const AlertDialog(
+//           content: Column(
+//             mainAxisSize: MainAxisSize.min,
+//             children: [
+//               CircularProgressIndicator(),
+//               SizedBox(height: 16),
+//               Text('Sending emergency alert...'),
+//             ],
+//           ),
+//         );
+//       },
+//     );
+//
+//     try {
+//       // Ensure we have the latest location
+//       await _getCurrentLocation();
+//
+//       if (_currentPosition == null) {
+//         Navigator.of(context).pop(); // Dismiss loading dialog
+//         ScaffoldMessenger.of(context).showSnackBar(
+//           const SnackBar(
+//             content: Text('Unable to get location. Please try again.'),
+//             backgroundColor: Colors.red,
+//           ),
+//         );
+//         return;
+//       }
+//
+//       // Log emergency event in Firestore
+//       final docRef = await _firestore.collection('emergencyAlerts').add({
+//         'userId': _currentUser?.uid,
+//         'userEmail': _currentUser?.email,
+//         'latitude': _currentPosition!.latitude,
+//         'longitude': _currentPosition!.longitude,
+//         'address': _currentAddress,
+//         'timestamp': FieldValue.serverTimestamp(),
+//         'status': 'active',
+//       });
+//
+//       // Create a shareable maps link
+//       final String mapUrl = 'https://www.google.com/maps/search/?api=1&query=${_currentPosition!.latitude},${_currentPosition!.longitude}';
+//
+//       // Prepare alert message
+//       final String alertMessage = 'EMERGENCY ALERT: I need help! My current location is: $_currentAddress\n\n$mapUrl';
+//
+//       // If we have emergency contacts, try to send them SMS alerts
+//       if (_emergencyContacts.isNotEmpty) {
+//         for (var contact in _emergencyContacts) {
+//           final String phoneNumber = contact['phone'];
+//           if (phoneNumber.isNotEmpty) {
+//             try {
+//               // Use flutter_sms to send SMS
+//               await sendSMS(
+//                   message: alertMessage,
+//                   recipients: [phoneNumber],
+//                   sendDirect: true
+//               );
+//             } catch (e) {
+//               print('Error sending SMS to ${contact['name']}: $e');
+//             }
+//           }
+//         }
+//       }
+//
+//       // Dismiss loading dialog
+//       Navigator.of(context).pop();
+//
+//       // Show confirmation
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         const SnackBar(
+//           content: Text('Emergency alert sent to your contacts'),
+//           backgroundColor: Colors.red,
+//           duration: Duration(seconds: 5),
+//         ),
+//       );
+//
+//       // Navigate to alert status page with the alert document ID
+//       Navigator.pushNamed(context, '/alert-status', arguments: docRef.id);
+//
+//     } catch (e) {
+//       // Handle errors
+//       Navigator.of(context).pop(); // Dismiss loading dialog
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         SnackBar(
+//           content: Text('Error sending alert: ${e.toString()}'),
+//           backgroundColor: Colors.red,
+//         ),
+//       );
+//     }
+//   }
+//
+// // New method to show SMS permission denied dialog
+//   void _showSMSPermissionDeniedDialog(BuildContext context) {
+//     showDialog(
+//       context: context,
+//       builder: (context) => AlertDialog(
+//         title: const Text('SMS Permission Required'),
+//         content: const Text('SMS permission is needed to send emergency alerts to your contacts. Would you like to enable it in settings?'),
+//         actions: [
+//           TextButton(
+//             onPressed: () {
+//               Navigator.of(context).pop();
+//             },
+//             child: const Text('CANCEL'),
+//           ),
+//           TextButton(
+//             onPressed: () {
+//               Navigator.of(context).pop();
+//               // Open app settings to allow user to manually enable permission
+//               openAppSettings();
+//             },
+//             child: const Text('OPEN SETTINGS'),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+  Future<void> _sendEmergencyAlert(BuildContext context) async {
+
+    // Show confirmation message
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Emergency alert simulated. SMS notification sent to contacts.'),
+        backgroundColor: Colors.red,
+        duration: Duration(seconds: 3),
+      ),
     );
-
-    try {
-      // Ensure we have the latest location
-      await _getCurrentLocation();
-
-      if (_currentPosition == null) {
-        Navigator.of(context).pop(); // Dismiss loading dialog
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Unable to get location. Please try again.'),
-            backgroundColor: Colors.red,
-          ),
-        );
-        return;
-      }
-
-      // Log emergency event in Firestore
-      final docRef = await _firestore.collection('emergencyAlerts').add({
-        'userId': _currentUser?.uid,
-        'userEmail': _currentUser?.email,
-        'latitude': _currentPosition!.latitude,
-        'longitude': _currentPosition!.longitude,
-        'address': _currentAddress,
-        'timestamp': FieldValue.serverTimestamp(),
-        'status': 'active',
-      });
-
-      // Create a shareable maps link
-      final String mapUrl = 'https://www.google.com/maps/search/?api=1&query=${_currentPosition!.latitude},${_currentPosition!.longitude}';
-
-      // Prepare alert message
-      final String alertMessage = 'EMERGENCY ALERT: I need help! My current location is: $_currentAddress\n\n$mapUrl';
-
-      // If we have emergency contacts, try to send them SMS alerts
-      if (_emergencyContacts.isNotEmpty) {
-        for (var contact in _emergencyContacts) {
-          final String phoneNumber = contact['phone'];
-          if (phoneNumber.isNotEmpty) {
-            // Using url_launcher to open SMS app (this doesn't send automatically for privacy reasons)
-            final Uri smsUri = Uri.parse('sms:$phoneNumber?body=${Uri.encodeComponent(alertMessage)}');
-            await launchUrl(smsUri);
-          }
-        }
-      }
-
-      // Dismiss loading dialog
-      Navigator.of(context).pop();
-
-      // Show confirmation
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Emergency alert sent to your contacts'),
-          backgroundColor: Colors.red,
-          duration: Duration(seconds: 5),
-        ),
-      );
-
-      // Navigate to alert status page with the alert document ID
-      Navigator.pushNamed(context, '/alert-status', arguments: docRef.id);
-
-    } catch (e) {
-      // Handle errors
-      Navigator.of(context).pop(); // Dismiss loading dialog
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error sending alert: ${e.toString()}'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
   }
+
+
 
   @override
   Widget build(BuildContext context) {
