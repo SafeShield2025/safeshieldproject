@@ -28,7 +28,7 @@ class SafeShieldApp extends StatelessWidget {
       routes: {
         '/login': (context) => const LoginPage(),
         '/register': (context) => const RegisterPage(),
-        '/verify-email': (context) => EmailVerificationPage(name: '',phone: '',),
+        '/verify-email': (context) => EmailVerificationPage(email:'',name: '',phone: '',password: '',),
         '/home': (context) => const HomePage(),
         '/profile': (context) => const ProfilePage(),
         '/map':(context)=> const Mapp() // Add the new route
@@ -53,8 +53,10 @@ class AuthenticationWrapper extends StatelessWidget {
         return const HomePage();
       } else {
         return EmailVerificationPage(
+          email: '',
           name: '', // Provide default values
           phone: '',
+          password: '',
         );
       }
     }

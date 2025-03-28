@@ -6,11 +6,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class EmailVerificationPage extends StatefulWidget {
   final String name;
   final String phone;
+  final String email;
+  final String password;
 
   const EmailVerificationPage({
     super.key,
+    required this.email,
     required this.name,
-    required this.phone
+    required this.phone,
+    required this.password,
   });
 
   @override
@@ -48,6 +52,28 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
         isEmailVerified = true;
       });
       timer.cancel();
+
+      // Add user details to Firestore when email is verified
+      await addUserDetailsToFirestore();
+    }
+  }
+
+  Future<void> addUserDetailsToFirestore() async {
+    try {
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+        'name': widget.name ?? '',
+        'phone': widget.phone ?? '',
+        'email': user.email,
+        'createdAt': FieldValue.serverTimestamp(),
+        'emailVerified': true,
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to add user details: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -114,7 +140,6 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
               const SizedBox(height: 24),
               const Text(
                 'Email Verified!',
-
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
@@ -125,12 +150,6 @@ class _EmailVerificationPageState extends State<EmailVerificationPage> {
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: () {
-                  FirebaseFirestore.instance.collection('users').doc(user.uid).set({
-                    'name': widget.name ?? '',
-                    'phone': widget.phone ?? '',
-                    'email': user.email,
-                    'createdAt': FieldValue.serverTimestamp(),
-                  });
                   Navigator.pushReplacementNamed(context, '/home');
                 },
                 style: ElevatedButton.styleFrom(

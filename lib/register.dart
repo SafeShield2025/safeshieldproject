@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'email_verification.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 
 class RegisterPage extends StatefulWidget {
@@ -37,6 +38,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
       try {
         final auth = FirebaseAuth.instance;
+        final firestore = FirebaseFirestore.instance;
 
         UserCredential userCredential = await auth.createUserWithEmailAndPassword(
           email: _emailController.text.trim(),
@@ -46,19 +48,19 @@ class _RegisterPageState extends State<RegisterPage> {
         User? user = userCredential.user;
         if (user != null) {
           // Send email verification
-
           await user.sendEmailVerification();
 
-          // Navigate to verification page
+          // Navigate to verification page with all user details
           if (mounted) {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (context) =>
-                    EmailVerificationPage(
-                      name: _nameController.text.trim(),
-                      phone: _phoneController.text.trim(),
-                    ),
+                builder: (context) => EmailVerificationPage(
+                  email: _emailController.text.trim(),
+                  name: _nameController.text.trim(),
+                  phone: _phoneController.text.trim(),
+                  password: _passwordController.text.trim(),
+                ),
               ),
             );
           }

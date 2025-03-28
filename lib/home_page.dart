@@ -5,7 +5,9 @@ import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
-
+import 'package:geolocator/geolocator.dart';
+import 'profile_page.dart';
+import 'map_page.dart';
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -287,23 +289,9 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('SafeShield'),
+        title: const Text('SafeShield',style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),),
         centerTitle: true,
-        actions: [
-          // Add profile icon
-          IconButton(
-            icon: const Icon(Icons.account_circle),
-            onPressed: () {
-              Navigator.pushNamed(context, '/profile');
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () {
-              _showLogoutDialog(context);
-            },
-          ),
-        ],
+
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -554,7 +542,7 @@ class _HomePageState extends State<HomePage> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        type: BottomNavigationBarType.fixed, // Important for more than 3 items
+        type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
@@ -569,28 +557,31 @@ class _HomePageState extends State<HomePage> {
             label: 'Alerts',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
+            icon: Icon(Icons.account_circle_rounded),
+            label: 'Profile',
           ),
         ],
         onTap: (index) {
-          setState(() {
-            _currentIndex = index; // Update the current index
-          });
+          if (index == _currentIndex) return; // Prevent redundant navigation
 
-          // Handle navigation
           switch (index) {
             case 0:
-            // Already on home
+            // Already on home page, do nothing
               break;
             case 1:
-              Navigator.pushNamed(context, '/map');
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const Mapp()),
+              );
               break;
             case 2:
-              Navigator.pushNamed(context, '/alerts');
+              Navigator.pushReplacementNamed(context, '/alerts');
               break;
             case 3:
-              Navigator.pushNamed(context, '/settings');
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const ProfilePage()),
+              );
               break;
           }
         },
@@ -680,31 +671,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _showLogoutDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Are you sure you want to logout?'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: const Text('CANCEL'),
-          ),
-          TextButton(
-            onPressed: () async {
-              await FirebaseAuth.instance.signOut();
-              Navigator.of(context).pop();
-              Navigator.pushReplacementNamed(context, '/login');
-            },
-            child: const Text('LOGOUT'),
-          ),
-        ],
-      ),
-    );
-  }
+
 
   void _showEmergencyDialog(BuildContext context) {
     showDialog(
@@ -767,8 +734,7 @@ class _HomePageState extends State<HomePage> {
             TextButton(
               onPressed: () async {
                 Navigator.of(context).pop();
-                await _getCurrentLocation();
-                _showLocationSharingDialog(context);
+                await _checkLocationPermission();
               },
               child: const Text('ENABLE LOCATION'),
             ),
@@ -780,6 +746,106 @@ class _HomePageState extends State<HomePage> {
               },
               child: const Text('SHARE'),
             ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _checkLocationPermission() async {
+    // Check location service status
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      _showLocationServicesDisabledDialog();
+      return;
+    }
+
+    // Check location permission status
+    LocationPermission permission = await Geolocator.checkPermission();
+
+    if (permission == LocationPermission.denied) {
+      // Request permission
+      permission = await Geolocator.requestPermission();
+
+      if (permission == LocationPermission.denied) {
+        _showPermissionDeniedDialog();
+        return;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      _showPermanentlyDeniedDialog();
+      return;
+    }
+
+    // If permissions are granted, get current location
+    await _getCurrentLocation();
+    _showLocationSharingDialog(context);
+  }
+
+  void _showLocationServicesDisabledDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Location Services Disabled'),
+        content: const Text('Please enable location services in your device settings.'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              Geolocator.openLocationSettings();
+            },
+            child: const Text('OPEN SETTINGS'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('CANCEL'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showPermissionDeniedDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Location Permission'),
+        content: const Text('Location permissions are required to share your location.'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _checkLocationPermission();
+            },
+            child: const Text('RETRY'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('CANCEL'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showPermanentlyDeniedDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Location Permission'),
+        content: const Text('Location permissions are permanently denied. Please enable them in app settings.'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              Geolocator.openAppSettings();
+            },
+            child: const Text('OPEN SETTINGS'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('CANCEL'),
+          ),
         ],
       ),
     );

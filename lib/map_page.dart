@@ -8,6 +8,8 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:http/http.dart' as http;
 import 'package:google_place/google_place.dart';
+import 'home_page.dart';
+import 'profile_page.dart';
 
 
 
@@ -21,12 +23,12 @@ class Mapp extends StatelessWidget {
       title: 'SafeShield',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple,
+          seedColor: Colors.white,
           brightness: Brightness.light,
         ),
         appBarTheme: AppBarTheme(
           elevation: 0,
-          backgroundColor: Colors.deepPurple,
+          backgroundColor: Colors.white,
           foregroundColor: Colors.white,
           centerTitle: true,
         ),
@@ -69,6 +71,8 @@ class MapPage extends StatefulWidget {
 }
 
 class _SafeShieldHomePageState extends State<MapPage> {
+
+  int _currentIndex = 1;
   static const String _googlePlacesApiKey = goopleplacesapi;
   late GooglePlace googlePlace;
   GoogleMapController? _mapController;
@@ -341,17 +345,24 @@ class _SafeShieldHomePageState extends State<MapPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => HomePage())
+          ),
+        ),
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.security, color: Colors.white),
+            Icon(Icons.security, color: Colors.black),
             SizedBox(width: 10),
-            Text('SafeShield', style: TextStyle(fontWeight: FontWeight.bold)),
+            Text('SafeShield', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),)
           ],
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.my_location),
+            icon: Icon(Icons.my_location,color: Colors.black),
             onPressed: _getCurrentLocation,
             tooltip: 'Refresh Location',
           ),
@@ -431,6 +442,52 @@ class _SafeShieldHomePageState extends State<MapPage> {
             ),
           ),
         ],
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        type: BottomNavigationBarType.fixed,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.map),
+            label: 'Map',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.notifications),
+            label: 'Alerts',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.account_circle_rounded),
+            label: 'Profile',
+          ),
+        ],
+        onTap: (index) {
+          if (index == _currentIndex) return; // Prevent redundant navigation
+
+          switch (index) {
+            case 0:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const HomePage()),
+              );
+              break;
+            case 1:
+            // Already on the map page, do nothing
+              break;
+            case 2:
+              Navigator.pushReplacementNamed(context, '/alerts');
+              break;
+            case 3:
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const ProfilePage()),
+              );
+              break;
+          }
+        },
       ),
     );
   }
